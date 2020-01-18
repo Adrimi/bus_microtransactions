@@ -9,3 +9,4 @@ vendor = Vendor()
 user = User("1", 10)
 user.createCertificate(bank)
 
+vendor.receivePayment(user, 2)
