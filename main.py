@@ -27,5 +27,8 @@ if user.has_first_payment_with(vendor) :
 
 	user.send_registration_to(vendor, register_message)
 
+	if vendor.has_registered(user):
+		print('now user can start sending payment requests')
+
 
 

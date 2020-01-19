@@ -9,18 +9,24 @@ class Vendor:
     self.__transactions = []
 
   def receive_payment_from(self, user, message):
-    if not self.has_registered(user):
-      self.__register(user)
     if self.__is_user_verified(user, message):
       print('user is verified')
+      if not self.has_registered(user):
+        self.__register(user)
+        print('user registered in vendor\'s database')
+      else:
+        print('user has already been registered in this vendor')
+
+      # self.__start_transaction_with(user, )
+
+
       # self.__start
 
   # TRANSACTION SPECIFIC METHODS
 
-  # def __start_transaction_with(self, user, value):
-    #transaction will become on the end of checklist !!
-    # transaction = Transaction(user, self, value)
-    # self.__transactions.append(transaction)
+  def __start_transaction_with(self, user, value):
+    transaction = Transaction(user, self, value)
+    self.__transactions.append(transaction)
 
   # USER SPECIFIC METHODS
 
