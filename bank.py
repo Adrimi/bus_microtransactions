@@ -1,3 +1,6 @@
 class Bank:
-	PUBLIC_KEY = 'this_is_public_key'
 
+	PUBLIC_KEY = "this_is_banks_public_key"
+
+	def __init__(self):
+		self.public_key = Bank.PUBLIC_KEY
