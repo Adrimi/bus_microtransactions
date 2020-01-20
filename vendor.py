@@ -8,23 +8,28 @@ class Vendor:
     self.__users = []
     self.__transactions = []
 
-  def receive_registration_from(self, user, message):
-    if self.__is_user_verified(user, message):
-      print('user is verified')
-      if not self.has_registered(user):
-        self.__register(user)
-        print('user registered in vendor\'s database')
-      else:
-        print('user has already been registered in this vendor')
 
-  def receive_payment_from(self, user, value):
-    if user.certificate.max_total_vendor_transaction_value >= self.current_sum_of_transactions_from(user) + value:
-      print('vendor can accept payment from this user!')
-      self.__start_transaction_with(user, value)
-    else:
-      print('user had reach limit of total allowed sum of transactions with this vendor')
+  def receive_message_from(self, user, message):
+    if self.__is_user_verified(user, message):
+
+      if message["payment"] * user.certificate.f <= 1:
+        if not self.has_registered(user):
+          self.__register(user)
+          print('user registered in vendor\'s database')
+        else:
+          self.__start_transaction_with(user, message["payment"])
+
+      else:
+        print('Vendor rejected transaction')
+
+
 
   # TRANSACTION SPECIFIC METHODS
+
+  def send_message_to(self, bank, message):
+    self.bank = bank
+    return bank.receive_message_from(self, message)
+
 
   def __start_transaction_with(self, user, value):
     transaction = Transaction(user, self, value)
@@ -45,7 +50,7 @@ class Vendor:
     return False
 
   def __is_user_verified(self, user, message):
-    user_certificate = message["certiicate"]
+    user_certificate = message["certificate"]
     if user_certificate.bank.public_key == Bank.PUBLIC_KEY:
       if user_certificate.user_public_key == user.public_key:
         return True

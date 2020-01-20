@@ -34,7 +34,7 @@ if not user.has_first_payment_with(vendor):
 		"payment": (1, random_hashed_number)
 	}
 
-	user.send_registration_to(vendor, register_message)
+	user.receive_message_from(vendor, register_message)
 
 	user.request_transaction_with(vendor, 3)
 	user.request_transaction_with(vendor, 3)
