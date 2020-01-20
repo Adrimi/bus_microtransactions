@@ -6,13 +6,15 @@ from utils import Hash
 
 # Standard
 from datetime import datetime
+from os import urandom
 
 
 ## SCENARIO 2
 # Persons
 bank = Bank()
 vendor = Vendor()
-user = User("1", 10)
+user_public_key = urandom(32) + b'_' + urandom(16)
+user = User(user_public_key, 10)
 
 # Story
 """
@@ -23,7 +25,8 @@ user.create_certificate(bank)
 
 if not user.has_first_payment_with(vendor):
 
-	random_hashed_number = Hash().get_hashed_number()
+	random_hashed_number = Hash().random_number
+
 	register_message = {
 		"certiicate": user.certificate,
 		"vendor": vendor,

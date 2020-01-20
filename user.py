@@ -3,12 +3,12 @@ from utils import Certificate
 
 class User:
 
-  def __init__(self, address, max_single_transaction_price):
-    self.address = address
+  def __init__(self, key, max_single_transaction_price):
     self.max_single_transaction_price = max_single_transaction_price
+    self.public_key = key
 
     self.vendors = []
-    self.public_key = "this_is_an_user_private_key"
+    self.address = "address"
     self.expiration_date = 180
 
   def create_certificate(self, bank):

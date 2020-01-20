@@ -19,7 +19,7 @@ class Vendor:
 
   def receive_payment_from(self, user, value):
     if user.certificate.max_total_vendor_transaction_value >= self.current_sum_of_transactions_from(user) + value:
-      print('vendor can accept payment from user!')
+      print('vendor can accept payment from this user!')
       self.__start_transaction_with(user, value)
     else:
       print('user had reach limit of total allowed sum of transactions with this vendor')
