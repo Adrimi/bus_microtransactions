@@ -6,9 +6,8 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 class Certificate:
 
-  def __init__(self, bank, user, user_public_key, expiration_date, f):
-    self.bank = bank
-    self.user = user
+  def __init__(self, instance, user_public_key, expiration_date, f):
+    self.instance = hash(instance)
     self.user_public_key = user_public_key 
     self.expiration_date = expiration_date
     self.f = f
@@ -28,8 +27,8 @@ class RSA:
 	@staticmethod
 	def generate_private_key():
 		return rsa.generate_private_key(
-      public_exponent = 35,
-      key_size = 512,
+      public_exponent = 3,
+      key_size = 2048,
       backend = default_backend()
     ).private_bytes(
     	encoding = serialization.Encoding.PEM,

@@ -14,7 +14,6 @@ class User:
   def create_certificate(self, bank):
     self.certificate = Certificate(
       bank,
-      self,
       self.public_key,
       self.expiration_date,
       0

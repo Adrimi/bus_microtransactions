@@ -22,6 +22,10 @@ class Bank:
 		self.M = 16 # 5 to 30  
 
 
+	def __hash__(self):
+		return hash((self.public_key, self.c, self.M))
+
+
 	def receive_message_from(self, vendor, message):
 		user_index = self.__get_user_index_with(message["certificate"])
 		if user_index == -1:

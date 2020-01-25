@@ -25,19 +25,17 @@ user = User()
 	If Bank can sell the User this amount of coins, then creates new, modified certificate for the User. 
 	User sends payment message to Vendor, then vendor is communicating with Bank and send back ACK. If 200, then Vendor accepts every payment from user with calculated probability.
 """
-user.create_certificate(bank)
+# user.create_certificate(bank)
 
-user_initial_message = jsonpickle.encode({
-	"Certificate" : user.certificate,
-	"Coins"				: user.coins
-}).encode('utf-8')
+# user_initial_message = jsonpickle.encode({
+# 	"Certificate" : user.certificate,
+# 	"Coins"				: user.coins
+# }).encode('utf-8')
 
-print(user_initial_message)
 symmetric_key = Fernet.generate_key()
 
-user_symmetrical_message = Fernet(symmetric_key).encrypt(user_initial_message)
-
-user.send_to(bank, RSA.encrypt(bank.public_key, user_symmetrical_message))
+print(symmetric_key)
+user.send_to(bank, RSA.encrypt(bank.public_key, symmetric_key))
 
 if user.certificate.f is not new_certificate.f:
 	user.coins = coins
