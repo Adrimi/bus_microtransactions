@@ -1,7 +1,7 @@
 from datetime import datetime
 from random import randint
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
+import json
 
 
 class Certificate:
@@ -10,12 +10,12 @@ class Certificate:
     self.bank = bank
     self.user = user
     self.user_address = user_adderss
-    self.user_public_key = user_public_key
+    self.user_public_key = user_public_key 
     self.expiration_date = expiration_date
     self.f = f
 
 
-class Transaction:
+class Transaction: 
 
   def __init__(self, user, vendor, value):
     self.user = user
@@ -24,28 +24,29 @@ class Transaction:
     self.value = value
 
 
-class AES:
+class Json:
 
-	def __init__(self, public_key):
-		self.key, self.vi = public_key.split(b'_')
+	DEFAULT_ENCODING = 'utf-8'
 
-		self.cipher = Cipher(algorithms.AES(self.key), modes.CBC(self.vi), backend = default_backend())
+	def __init__(self, data):
+		self.data = json.dumps(data, sort_keys = True, indent = 2)
+		self.encode()
 
-	def encrypt(self, message):
-		enc = self.cipher.encryptor()
-		message = message.encode('latin-1', 'strict')
-		return enc.update(message) + enc.finalize()
+	def __str__(self):
+		if isinstance(self.data, bytes):
+			return self.data.decode()
+		return self.data
 
-	def decrypt(self, message):
-		dec = self.cipher.decryptor()
+	def encoded(self):
+		self.encode()
+		return self
 
-		message = dec.update(message) + dec.finalize()
-		return message.decode('latin-1', 'strict')
+	def decoded(self):
+		self.decode()
+		return self
 
+	def encode(self):
+		self.data = self.data.encode(Json.DEFAULT_ENCODING)
 
-class Hash:
-
-	def __init__(self):
-		self.random_number = randint(1, 1000000000000000000000000000000000)
-		for n in range(10):
-			self.random_number = hash(self.random_number)
+	def decode(self):
+		self.data = self.data.decode(Json.DEFAULT_ENCODING)
