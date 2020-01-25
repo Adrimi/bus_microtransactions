@@ -3,7 +3,7 @@ from utils import Certificate
 
 class User:
 
-  def __init__(self, key):
+  def __init__(self, key = ""):
     self.public_key = key
 
     self.vendors = []

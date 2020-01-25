@@ -1,18 +1,17 @@
 from cryptography.fernet import Fernet
-from utils import Json
+from user import User
+import jsonpickle as json 
 
 key = Fernet.generate_key()
 f = Fernet(key)
 
 dict = {
-		"Imie": "Stara", 
-		"Nazwisko" : "Bogacka",
-		"Liczba_zebow": 2,
+		"User": User()
 	}
 
-message = Json(dict)
+message = json.encode(dict)
 
-encrypted = f.encrypt(message.data)
+encrypted = f.encrypt(message.encode('utf-8'))
 decrypted = f.decrypt(encrypted)
 
 print(message)

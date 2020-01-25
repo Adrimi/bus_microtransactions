@@ -22,23 +22,3 @@ class Transaction:
     self.vendor = vendor
     self.timestamp = datetime.now()
     self.value = value
-
-
-class Json:
-
-	DEFAULT_ENCODING = 'utf-8'
-
-	def __init__(self, data):
-		self.data = json.dumps(data, sort_keys = True, indent = 2)
-		self.encode()
-
-	def __str__(self):
-		if isinstance(self.data, bytes):
-			return self.data.decode(Json.DEFAULT_ENCODING)
-		return self.data
-
-	def encode(self):
-		self.data = self.data.encode(Json.DEFAULT_ENCODING)
-
-	def decode(self):
-		self.data = self.data.decode(Json.DEFAULT_ENCODING)
