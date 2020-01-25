@@ -34,16 +34,8 @@ class Json:
 
 	def __str__(self):
 		if isinstance(self.data, bytes):
-			return self.data.decode()
+			return self.data.decode(Json.DEFAULT_ENCODING)
 		return self.data
-
-	def encoded(self):
-		self.encode()
-		return self
-
-	def decoded(self):
-		self.decode()
-		return self
 
 	def encode(self):
 		self.data = self.data.encode(Json.DEFAULT_ENCODING)

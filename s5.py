@@ -7,15 +7,14 @@ f = Fernet(key)
 dict = {
 		"Imie": "Stara", 
 		"Nazwisko" : "Bogacka",
-		"Liczba_zebow": 3
+		"Liczba_zebow": 2,
 	}
 
 message = Json(dict)
-print(message)
 
 encrypted = f.encrypt(message.data)
-# decrypted = f.decrypt(encrypted)
+decrypted = f.decrypt(encrypted)
 
-# print(message)
-# print(encrypted)
-# print(decrypted)
+print(message)
+print(encrypted)
+print(decrypted.decode('utf-8'))
