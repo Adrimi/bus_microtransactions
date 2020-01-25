@@ -1,10 +1,8 @@
 from copy import copy
-from os import urandom
+from utils import RSA
 
 
 class Bank:
-
-	PUBLIC_KEY = urandom(32) + b'_' + urandom(16)
 
 	class User_Info:
 		def __init__(self):
@@ -13,7 +11,8 @@ class Bank:
 			self.vendors = []
 
 	def __init__(self):
-		self.public_key = Bank.PUBLIC_KEY
+		self.__private_key = RSA.generate_private_key()
+		self.public_key = RSA.public_key(self.__private_key)
 
 		# Bank Information about user activity
 		self.users = []
@@ -48,9 +47,13 @@ class Bank:
 			return 400
 
 
-	def sell_credits(self, user, coins):
-		if not user in self.users:
-			self.__register(user)
+	# USER
+	def receive(self, message):
+		message = RSA.decrypt(self.__private_key, message)
+		print(message)
+
+		# if not user in self.users:
+		# 	self.__register(user)
 
 		# Create copy of certificate for further changes
 		certificate = copy(user.certificate)

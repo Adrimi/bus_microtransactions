@@ -1,13 +1,13 @@
-from utils import Certificate
+from utils import Certificate, RSA
 
 
 class User:
 
-  def __init__(self, key = ""):
-    self.public_key = key
+  def __init__(self):
+    self.__private_key = RSA.generate_private_key()
+    self.public_key = RSA.public_key(self.__private_key)
 
     self.vendors = []
-    self.address = "address"
     self.expiration_date = 180
     self.coins = 0
 
@@ -15,13 +15,17 @@ class User:
     self.certificate = Certificate(
       bank,
       self,
-      self.address,
       self.public_key,
       self.expiration_date,
-      10
+      0
     )
 
-  # VENDOR SPECIFIC METHODS
+  # VENDOR
+  # BANK 
+
+  def send_to(self, bank, message):
+    print(message)
+    bank.receive(message)
 
   # def request_transaction_with(self, vendor, value):
     # vendor.receive_payment_from(self, value)

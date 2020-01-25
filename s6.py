@@ -2,10 +2,12 @@
 from bank import Bank
 from user import User
 from vendor import Vendor
+from utils import RSA
+from cryptography.fernet import Fernet
 
 # Standard
 from datetime import datetime
-from cryptography.fernet import Fernet
+import jsonpickle
 from secrets import choice
 from random import random
 
@@ -14,7 +16,8 @@ from random import random
 # Players
 bank = Bank()
 vendor = Vendor()
-user = User(user_public_key)
+user = User()
+
 
 # Story
 """
@@ -24,9 +27,17 @@ user = User(user_public_key)
 """
 user.create_certificate(bank)
 
-coins = 7
-print(user.certificate.f)
-new_certificate = bank.sell_credits(user, coins)
+user_initial_message = jsonpickle.encode({
+	"Certificate" : user.certificate,
+	"Coins"				: user.coins
+}).encode('utf-8')
+
+print(user_initial_message)
+symmetric_key = Fernet.generate_key()
+
+user_symmetrical_message = Fernet(symmetric_key).encrypt(user_initial_message)
+
+user.send_to(bank, RSA.encrypt(bank.public_key, user_symmetrical_message))
 
 if user.certificate.f is not new_certificate.f:
 	user.coins = coins
