@@ -1,11 +1,15 @@
 from copy import copy
 from utils import RSA
+from cryptography.fernet import Fernet
+from cryptography.fernet import InvalidToken
+import jsonpickle
 
 
 class Bank:
 
 	class User_Info:
-		def __init__(self):
+		def __init__(self, key):
+			self.session_key = key
 			self.max_credit = 10
 			self.polling_counter = 0
 			self.vendors = []
@@ -13,18 +17,10 @@ class Bank:
 	def __init__(self):
 		self.__private_key = RSA.generate_private_key()
 		self.public_key = RSA.public_key(self.__private_key)
-
-		# Bank Information about user activity
-		self.users = []
 		self.users_info = []
 
 		self.c = 3 # 2 to 10
 		self.M = 16 # 5 to 30  
-
-
-	def __hash__(self):
-		return hash((self.public_key, self.c, self.M))
-
 
 	def receive_message_from(self, vendor, message):
 		user_index = self.__get_user_index_with(message["certificate"])
@@ -52,27 +48,47 @@ class Bank:
 
 
 	# USER
-	def receive(self, message):
-		message = RSA.decrypt(self.__private_key, message)
-		print(message)
-
-		# if not user in self.users:
-		# 	self.__register(user)
+	def receive_session_key(self, message):
+		session_key = RSA.decrypt(self.__private_key, message)
+		self.users_info.append(Bank.User_Info(session_key))
 
 		# Create copy of certificate for further changes
-		certificate = copy(user.certificate)
-		user_index = self.users.index(user)
+		# certificate = copy(user.certificate)
+		# user_index = self.users.index(user)
 
-		if coins > self.users_info[user_index].max_credit + user.coins:
-			print('User cannot buy such many credits!')
-		else:
-			f = self.c / coins
-			certificate.f = f
+		# if coins > self.users_info[user_index].max_credit + user.coins:
+		# 	print('User cannot buy such many credits!')
+		# else:
+		# 	f = self.c / coins
+		# 	certificate.f = f
 		
-		return certificate
+		# return certificate
+
+	def receive_message(self, message):
+		for user in self.users_info:
+			f = Fernet(user.session_key)
+			try:
+				encrypted_message = f.decrypt(message)
+			except InvalidToken as e:
+				continue
+			else:
+				json = jsonpickle.decode(encrypted_message)
+				print('[BANK] Message decrypted')
+				return self.handle(json, user.max_credit)
 
 
-	# USER SPECIFIC 
+	# === HELPER METHODS === 
+
+	def handle(self, json, max_credit):
+		if 'Coins' in json:
+			coins = json['Coins'] 
+			if coins > max_credit:
+				print('[BANK] User cannot buy such many credits!')
+				return 'failure'
+			else:
+				f = self.c / coins
+				return f
+
 
 	def __get_user_index_with(self, certificate):
 		for index, user in enumerate(self.users):
@@ -80,6 +96,3 @@ class Bank:
 				return index
 		return -1
 
-	def __register(self, user):
-		self.users.append(user)
-		self.users_info.append(Bank.User_Info())

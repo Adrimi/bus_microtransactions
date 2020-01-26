@@ -4,15 +4,6 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 
-class Certificate:
-
-  def __init__(self, instance, user_public_key, expiration_date, f):
-    self.instance = hash(instance)
-    self.user_public_key = user_public_key 
-    self.expiration_date = expiration_date
-    self.f = f
-
-
 class Transaction: 
 
   def __init__(self, user, vendor, value):
@@ -27,8 +18,8 @@ class RSA:
 	@staticmethod
 	def generate_private_key():
 		return rsa.generate_private_key(
-      public_exponent = 3,
-      key_size = 2048,
+      public_exponent = 65537,
+      key_size = 873,
       backend = default_backend()
     ).private_bytes(
     	encoding = serialization.Encoding.PEM,

@@ -19,28 +19,25 @@ vendor = Vendor()
 user = User()
 
 
-# Story
-"""
-	An User sends his certificate to the Bank, with coins puchase request. 
-	If Bank can sell the User this amount of coins, then creates new, modified certificate for the User. 
-	User sends payment message to Vendor, then vendor is communicating with Bank and send back ACK. If 200, then Vendor accepts every payment from user with calculated probability.
-"""
-# user.create_certificate(bank)
-
-# user_initial_message = jsonpickle.encode({
-# 	"Certificate" : user.certificate,
-# 	"Coins"				: user.coins
-# }).encode('utf-8')
-
 symmetric_key = Fernet.generate_key()
+user.session_key = symmetric_key
+user.send_session_key_to(bank, RSA.encrypt(bank.public_key, symmetric_key))
 
-print(symmetric_key)
-user.send_to(bank, RSA.encrypt(bank.public_key, symmetric_key))
+coins = 7
+user_credits_message = jsonpickle.encode({
+	'Coins' : coins
+	}).encode('utf-8')
 
-if user.certificate.f is not new_certificate.f:
-	user.coins = coins
-	user.certificate = new_certificate
-	print('User bought %d coins' % coins)
+response = user.send_message_to(bank, Fernet(user.session_key).encrypt(user_credits_message))
+print(response)
+
+if isinstance(response, float):
+	user.finalize_coins(coins, response)
+
+# if user.certificate.f is not new_certificate.f:
+# 	user.coins = coins
+# 	user.certificate = new_certificate
+# 	print('User bought %d coins' % coins)
 
 # ===
 
