@@ -1,59 +1,73 @@
-from utils import Transaction
-from bank import Bank
+from utils import Transaction, RSA
+from cryptography.fernet import Fernet
+from cryptography.fernet import InvalidToken
+import jsonpickle
 
 
 class Vendor:
 
+  class User_Info:
+    def __init__(self, key):
+      self.session_key = key
+
   def __init__(self):
     self.__users = []
     self.__transactions = []
+    self.__private_key = RSA.generate_private_key()
+    self.public_key = RSA.public_key(self.__private_key)
 
+  def receive_session_key(self, message):
+    print('[VENDOR] Received RSA encrypted session_key. Decoding...')
+    session_key = RSA.decrypt(self.__private_key, message)
+    print('[VENDOR] Session key decoded:', session_key)
+    self.__users.append(Vendor.User_Info(session_key))
+    print('++++++ SESSION ACKNOWLEDGE END ++++++++\n')
 
-  def receive_message_from(self, user, message):
-    if self.__is_user_verified(user, message):
+  def send_session_key_to(self, instance):
+    print('\n++++++ SESSION ACKNOWLEDGE START ++++++++')
+    self.session_key = Fernet.generate_key()
+    encrypted_session_key = RSA.encrypt(instance.public_key, self.session_key)
+    print('[VENDOR] Sending RSA encrypted session_key:', encrypted_session_key)
+    instance.reveive_session_key_from_vendor(encrypted_session_key)
 
-      if message["payment"] * user.certificate.f <= 1:
-        if not self.has_registered(user):
-          self.__register(user)
-          print('user registered in vendor\'s database')
-        else:
-          self.__start_transaction_with(user, message["payment"])
+  def send_message_to(self, instance, message):
+    print('[VENDOR] Sending message:', message)
+    return instance.receive_message(message)
 
+  def send_message_to_bank(self, instance, message):
+    print('[VENDOR] Sending message:', message)
+    return instance.receive_message_vendor(message)
+
+  def receive_message(self, message):
+    for user in self.__users:
+      f = Fernet(user.session_key)
+      try:
+        decrypted_message = f.decrypt(message)
+      except InvalidToken as e:
+        continue
       else:
-        print('Vendor rejected transaction')
+        json = jsonpickle.decode(decrypted_message)
+        print('[VENDOR] Message decrypted')
+        response = f.encrypt(self.handle(json))
+        print('[VENDOR] Send response:', response)
+        return response
 
 
-
-  # TRANSACTION SPECIFIC METHODS
-
-  def send_message_to(self, bank, message):
-    self.bank = bank
-    return bank.receive_message_from(self, message)
-
-
-  def __start_transaction_with(self, user, value):
-    transaction = Transaction(user, self, value)
-    self.__transactions.append(transaction)
-
-  def current_sum_of_transactions_from(self, user):
-    sum = 0
-    for transaciton in self.__transactions:
-      if transaciton.user == user:
-        sum = sum + transaciton.value
-    return sum
+  def handle(self, json):
+    payment_value = json['Payment']
+    f = json['F']
+    if payment_value * f <= 1:
+      print('[VENDOR] Accepted payment')
+      return 'success'
+    else:
+      print('[VENDOR] Rejected payment')
+      return 'failure'
 
   # USER SPECIFIC METHODS
 
   def has_registered(self, user):
     if user in self.__users:
       return True
-    return False
-
-  def __is_user_verified(self, user, message):
-    user_certificate = message["certificate"]
-    if user_certificate.bank.public_key == Bank.PUBLIC_KEY:
-      if user_certificate.user_public_key == user.public_key:
-        return True
     return False
 
   def __register(self, user):
