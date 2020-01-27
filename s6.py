@@ -27,7 +27,9 @@ user_credits_message = jsonpickle.encode({
 	'Coins' : coins
 	}).encode('utf-8')
 
-response = user.send_message_to(bank, Fernet(user.session_key).encrypt(user_credits_message))
+user_encrypted_message = Fernet(user.session_key).encrypt(user_credits_message)
+response = user.send_message_to(bank, user_encrypted_message)
+
 print('[MAIN] Response:', response)
 
 if isinstance(response, float):

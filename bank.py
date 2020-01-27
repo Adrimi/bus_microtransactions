@@ -1,5 +1,5 @@
 from copy import copy
-from utils import RSA
+from utils import RSA, MQTT
 from cryptography.fernet import Fernet
 from cryptography.fernet import InvalidToken
 import jsonpickle
@@ -13,6 +13,7 @@ class Bank:
 			self.max_credit = 10
 			self.polling_counter = 0
 			self.vendors = []
+			self.client = MQTT('BANK')
 
 	def __init__(self):
 		self.__private_key = RSA.generate_private_key()
@@ -52,17 +53,6 @@ class Bank:
 		session_key = RSA.decrypt(self.__private_key, message)
 		self.users_info.append(Bank.User_Info(session_key))
 
-		# Create copy of certificate for further changes
-		# certificate = copy(user.certificate)
-		# user_index = self.users.index(user)
-
-		# if coins > self.users_info[user_index].max_credit + user.coins:
-		# 	print('User cannot buy such many credits!')
-		# else:
-		# 	f = self.c / coins
-		# 	certificate.f = f
-		
-		# return certificate
 
 	def receive_message(self, message):
 		for user in self.users_info:
@@ -76,7 +66,6 @@ class Bank:
 				print('[BANK] Message decrypted')
 				return self.handle(json, user.max_credit)
 
-
 	# === HELPER METHODS === 
 
 	def handle(self, json, max_credit):
@@ -86,13 +75,14 @@ class Bank:
 				print('[BANK] User cannot buy such many credits!')
 				return 'failure'
 			else:
+				print('[BANK] User bought %d credits' % coins)
 				f = self.c / coins
 				return f
 
 
-	def __get_user_index_with(self, certificate):
-		for index, user in enumerate(self.users):
-			if user.certificate is certificate:
-				return index
-		return -1
+	# def __get_user_index_with(self, certificate):
+	# 	for index, user in enumerate(self.users):
+	# 		if user.certificate is certificate:
+	# 			return index
+	# 	return -1
 

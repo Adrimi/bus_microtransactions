@@ -1,4 +1,4 @@
-from utils import RSA
+from utils import RSA, MQTT
 
 
 class User:
@@ -9,6 +9,7 @@ class User:
     self.coins = 0
     self.session_key = b''
     self.f = 0
+    self.client = MQTT('USER')
 
   # VENDOR
   # BANK 
@@ -19,6 +20,17 @@ class User:
 
   # def request_transaction_with(self, vendor, value):
     # vendor.receive_payment_from(self, value)
+
+  def publish(self, topic, message):
+    self.client.connect()
+    self.client.publish(message)
+    print('[USER] Message sent')
+    rc = 0
+    while rc == 0:
+      rc = self.client.client.loop()
+    print('[USER] Response on message')
+    return rc
+
 
   def send_message_to(self, bank, message):
     print(message)
