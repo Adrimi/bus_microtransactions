@@ -18,7 +18,6 @@ bank = Bank()
 vendor = Vendor()
 user = User()
 
-
 symmetric_key = Fernet.generate_key()
 user.session_key = symmetric_key
 user.send_session_key_to(bank, RSA.encrypt(bank.public_key, symmetric_key))
@@ -29,7 +28,7 @@ user_credits_message = jsonpickle.encode({
 	}).encode('utf-8')
 
 response = user.send_message_to(bank, Fernet(user.session_key).encrypt(user_credits_message))
-print(response)
+print('[MAIN] Response:', response)
 
 if isinstance(response, float):
 	user.finalize_coins(coins, response)
@@ -41,55 +40,42 @@ if isinstance(response, float):
 
 # ===
 
-if not user.has_first_payment_with(vendor):
+# if not user.has_first_payment_with(vendor):
 
-	register_message = {
-		"certificate": user.certificate,
-		"vendor": vendor,
-		"time": datetime.now(),
-		"payment": 0.05
-	}
+# 	register_message = {
+# 		"certificate": user.certificate,
+# 		"vendor": vendor,
+# 		"time": datetime.now(),
+# 		"payment": 0.05
+# 	}
 
-	user.send_message_to(vendor, register_message)
+# 	user.send_message_to(vendor, register_message)
 
-	if vendor.has_registered(user):
-		ack = vendor.send_message_to(bank, register_message)
+# 	if vendor.has_registered(user):
+# 		ack = vendor.send_message_to(bank, register_message)
 
-		if ack == 200:
-			flag = False
-			loop_counter = 0
+# 		if ack == 200:
+# 			flag = False
+# 			loop_counter = 0
 
-			while not flag:
-				loop_counter += 1
+# 			while not flag:
+# 				loop_counter += 1
 
-				register_message["payment"] = choice([0.01, 0.03, 0.05])
-				user.send_message_to(vendor, register_message)
+# 				register_message["payment"] = choice([0.01, 0.03, 0.05])
+# 				user.send_message_to(vendor, register_message)
 
-				probability = register_message["payment"] * user.certificate.f
+# 				probability = register_message["payment"] * user.certificate.f
 				
-				print('[%d] prob: %f' % (loop_counter, probability))
+# 				print('[%d] prob: %f' % (loop_counter, probability))
 
-				if random() < probability:
-					response = bank.receive_warning_from(vendor, register_message)
+# 				if random() < probability:
+# 					response = bank.receive_warning_from(vendor, register_message)
 
-					if response == 400:
-						print('Bank has flag the User for suspicious activity')
-						flag = True
-
-
+# 					if response == 400:
+# 						print('Bank has flag the User for suspicious activity')
+# 						flag = True
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-1
